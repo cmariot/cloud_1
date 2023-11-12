@@ -1,0 +1,51 @@
+---
+- name: Deploy Docker Compose Application
+  hosts: charles-mariot.fr
+  become: true
+
+  tasks:
+
+    - name: Update apt
+      apt:
+        update_cache: yes
+
+    - name: Upgrade apt
+      apt:
+        upgrade: yes
+
+    - name: Install Docker
+      apt:
+        name: docker
+        state: present
+
+    # - name: Install Snapd
+    #   apt:
+    #     name: snapd
+    #     state: present
+
+
+    - name: Copy Inception directory
+      copy:
+        src: ./Inception
+        dest: /home/ubuntu/
+
+    - name: Create volume directory
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: root
+        group: root
+        mode: 0744
+      loop:
+        - /home/ubuntu/Inception/srcs/data/mariadb
+        - /home/ubuntu/Inception/srcs/data/wordpress
+
+    - name: Stop Docker Compose
+      command: docker compose stop
+      args:
+        chdir: /home/ubuntu/Inception/srcs/
+
+    - name: Start Docker Compose
+      command: docker compose up -d
+      args:
+        chdir: /home/ubuntu/Inception/srcs/
