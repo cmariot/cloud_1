@@ -28,21 +28,32 @@ RUN apk update && apk upgrade && apk add --no-cache\
 	php8-xml\
 	php8-zip
 
-# Create the www user
-RUN adduser -D -g 'www' www\
-	&& mkdir -p /var/www/wordpress\
-	&& chown www:www /var/www/wordpress
 
 # Copy php config files
 COPY ./conf/www.conf	/etc/php8/php-fpm.d/
 COPY ./conf/php.ini		/etc/php8/
 
+# Add user www-data, and give him the right to write in /var/www
+RUN adduser -S -D -s /sbin/nologin -h /var/www -G www-data www-data
+
 # Copy the wordpress installation script
-COPY ./tools/wordpress_install.sh	/
-RUN chmod +x /wordpress_install.sh
+COPY ./tools/wordpress_install.sh /var/www/
+
+# The installation script must be executable and owned by www-data
+RUN chown -R www-data:www-data /var/www/wordpress_install.sh
+
+# Change the user to www-data
+USER www-data
+
+# Create the directory /var/www/html
+RUN mkdir -p /var/www/html
+
+# Make the script executable
+RUN chmod +x /var/www/wordpress_install.sh
 
 # Expose the port 9000
 EXPOSE 9000
 
 # Install wp and run php
-CMD ["/wordpress_install.sh"]
+USER root
+CMD ["/var/www/wordpress_install.sh"]

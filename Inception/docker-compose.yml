@@ -1,0 +1,104 @@
+version: '3.8'
+
+
+services:
+
+  # MariaDB container
+  mariadb:
+    container_name: mariadb
+    build: requirements/mariadb
+    volumes:
+      - mariadb_volume:/var/lib/mysql:rw
+    environment:
+      - MYSQL_DB_HOST=${MYSQL_DB_HOST}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_DB_PREFIX=${MYSQL_DB_PREFIX}
+    networks:
+      - docker_network
+    restart: always
+
+  # Wordpress container with php-fpm
+  wordpress:
+    container_name: wordpress
+    build: requirements/wordpress
+    volumes:
+      - wordpress_volume:/var/www/html:rw
+    env_file: .env
+    depends_on:
+      - mariadb
+    networks:
+      - docker_network
+    restart: always
+
+  # Nginx container with TLSv1.2 or TLSv1.3
+  nginx:
+    container_name: nginx
+    image: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - nginx_certs:/etc/nginx/certs:ro
+      - nginx_config:/etc/nginx/conf.d:ro
+      - wordpress_volume:/var/www/html/:ro
+    depends_on:
+      - wordpress
+    networks:
+      - docker_network
+    restart: always
+
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    depends_on:
+      - mariadb
+    environment:
+      PMA_HOST: mariadb
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      PMA_ABSOLUTE_URI: "https://${SITE_URL}/phpmyadmin"
+    networks:
+      - docker_network
+    restart: always
+
+
+
+networks:
+  docker_network:
+    driver: bridge
+
+
+volumes:
+
+  # Wordpress files
+  wordpress_volume:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/ubuntu/Inception/data/wordpress
+      o: bind
+
+  # MariaDB database
+  mariadb_volume:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/ubuntu/Inception/data/mariadb
+      o: bind
+
+  # Nginx Certificates
+  nginx_certs:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/ubuntu/.ssl
+      o: bind
+
+  # Nginx Config
+  nginx_config:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/ubuntu/Inception/requirements/nginx
+      o: bind

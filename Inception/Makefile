@@ -1,35 +1,39 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    Makefile                                          :+:      :+:    :+:    #
+#    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: cmariot <cmariot@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/31 16:08:49 by cmariot           #+#    #+#              #
-#    Updated: 2023/11/11 22:17:20 by cmariot         ###   ########.fr        #
+#    Updated: 2023/11/13 19:49:10 by cmariot          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-PROJECT_NAME 				= inception
 
-DOCKER_COMPOSE_FILE			= srcs/docker-compose.yml
-
+PROJECT_NAME 				= wordpress
+DOCKER_COMPOSE_COMMAND		= docker compose
 HOME_PATH					= .
 
-DOCKER_COMPOSE_COMMAND		= sudo docker compose \
-							  -f ${DOCKER_COMPOSE_FILE} \
-							  -p ${PROJECT_NAME}
+
 up: create_directories
-	${DOCKER_COMPOSE_COMMAND} up --pull never --build
+	${DOCKER_COMPOSE_COMMAND} up --build
+
 
 clean: stop
 	docker system prune -a --force
 
+
 fclean: stop rm_directories
 	docker system prune -a --force --volumes
-	docker volume rm -f srcs_mariadb_volume srcs_wordpress_volume srcs_nginx_volume
+	docker volume rm -f inception_wordpress_volume\
+						inception_mariadb_volume\
+						inception_nginx_config\
+						inception_nginx_certs
+
 
 re: fclean up
+
 
 sh_nginx:
 	${DOCKER_COMPOSE_COMMAND} exec nginx sh
@@ -40,8 +44,10 @@ sh_mariadb:
 sh_wordpress:
 	${DOCKER_COMPOSE_COMMAND} exec wordpress sh
 
+
 ps:
 	${DOCKER_COMPOSE_COMMAND} ps
+
 
 list:
 	@printf "CONTAINERS LIST :\n"
@@ -53,28 +59,34 @@ list:
 	@printf "\nNETWORKS LIST :\n"
 	@docker network ls
 
+
 image:
 	${DOCKER_COMPOSE_COMMAND} images
+
 
 pause:
 	${DOCKER_COMPOSE_COMMAND} pause
 
+
 unpause:
 	${DOCKER_COMPOSE_COMMAND} unpause
+
 
 start:
 	${DOCKER_COMPOSE_COMMAND} start
 
+
 stop:
-	sudo docker compose -f ${DOCKER_COMPOSE_FILE} stop
+	${DOCKER_COMPOSE_COMMAND} stop
+
 
 restart:
 	${DOCKER_COMPOSE_COMMAND} restart
 
+
 create_directories:
-	mkdir -p ${HOME_PATH}/srcs/data/mariadb\
-		${HOME_PATH}/srcs/data/wordpress
+	mkdir -p data/mariadb data/wordpress
+
 
 rm_directories:
-	rm -rf ${HOME_PATH}/srcs/data/mariadb\
-		${HOME_PATH}/srcs/data/wordpress
+	rm -rf data/mariadb data/wordpress

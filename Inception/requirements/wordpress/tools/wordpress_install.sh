@@ -1,7 +1,7 @@
 #! /bin/sh
 
 
-WORDPRESS_CONFIG_FILE=/var/www/wordpress/wp-config.php
+WORDPRESS_CONFIG_FILE=/var/www/html/wp-config.php
 
 
 # WP-CLI = Command line interface for WordPress
@@ -17,7 +17,7 @@ install_wp_cli()
 download_wordpress()
 {
 	echo "Downloading WordPress"
-	wp core download --path=/var/www/wordpress --force --skip-content
+	wp core download --path=/var/www/html --force --skip-content
 }
 
 
@@ -25,7 +25,7 @@ download_wordpress()
 config_wordpress()
 {
 	echo "WordPress configuration"
-	cd /var/www/wordpress
+	cd /var/www/html
 
 	sleep 10
 	wp config create \
@@ -36,6 +36,7 @@ config_wordpress()
 		--dbprefix=${MYSQL_DB_PREFIX}
 
 	sed -i "62i define('FS_METHOD', 'direct');" wp-config.php
+
 }
 
 
@@ -43,7 +44,7 @@ config_wordpress()
 install_wordpress()
 {
 	echo "WordPress installation"
-	cd /var/www/wordpress
+	cd /var/www/html
 
 	wp core install \
 		--url=${SITE_URL} \
@@ -57,33 +58,26 @@ install_wordpress()
 	wp rewrite structure /%postname%/
 
 	# Install the default theme
-	wp theme install twentytwentythree --force
-    wp theme activate twentytwentythree
-}
-
-
-# Create the second wordpress user
-create_user()
-{
-	wp user create ${WP_USER} ${WP_USER_EMAIL} --user_pass=${WP_USER_PASSORD}
+	wp theme install twentytwentyfour --force
+    wp theme activate twentytwentyfour
 }
 
 
 main()
 {
-	install_wp_cli
 	if [ -f "$WORDPRESS_CONFIG_FILE" ];
 	then
 		echo "WordPress is already downloaded."
 	else
+        install_wp_cli
 		echo "Wordpress installation ..."
 		download_wordpress
 		config_wordpress
 		install_wordpress
-		create_user
-		chown -R www:www /var/www/wordpress
 		wp cron event run --due-now
+        chown -R www-data:www-data /var/www/html
 		echo "The WordPress installation is completed."
+        rm -f /usr/local/bin/wp
 	fi
 }
 

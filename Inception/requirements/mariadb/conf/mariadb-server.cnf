@@ -1,0 +1,11 @@
+# These groups are read by MariaDB server.
+# Use it for options that only the server (but not clients) should see
+
+# This is only for the mysqld standalone daemon
+[mysqld]
+# skip-networking
+
+# Galera-related settings
+[galera]
+# Allow server to accept connections on all interfaces.
+bind-address=0.0.0.0
