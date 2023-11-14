@@ -1,0 +1,29 @@
+---
+
+# Indempotently start the application
+# - If the application is not running, start it
+# - If the application is running and something has changed, restart it
+# - If the application is running and nothing has changed, do nothing
+
+# List the running Docker Compose containers
+- name: Check if the Docker Compose app is running
+  command: "docker compose ps -q"
+  args:
+    chdir: /home/ubuntu/Inception
+  register: inception
+  ignore_errors: true
+  changed_when: false
+
+# Start the Docker Compose app if it is not running
+- name: Start the Docker Compose app if needed
+  command: "docker-compose up -d"
+  args:
+    chdir: /home/ubuntu/Inception
+  when: inception.stdout == ""
+
+# Restart the Docker Compose app if it is running and something has changed
+- name: Restart the Docker Compose app if needed
+  command: "docker-compose restart"
+  args:
+    chdir: /home/ubuntu/Inception
+  when: copy_result.changed == true and inception.stdout != ""

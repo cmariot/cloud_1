@@ -6,7 +6,7 @@
 #    By: cmariot <cmariot@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/31 16:08:49 by cmariot           #+#    #+#              #
-#    Updated: 2023/11/13 19:49:10 by cmariot          ###   ########.fr        #
+#    Updated: 2023/11/14 22:54:42 by cmariot          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,7 +29,8 @@ fclean: stop rm_directories
 	docker volume rm -f inception_wordpress_volume\
 						inception_mariadb_volume\
 						inception_nginx_config\
-						inception_nginx_certs
+						inception_nginx_certs\
+						inception_redis_data
 
 
 re: fclean up
@@ -85,8 +86,8 @@ restart:
 
 
 create_directories:
-	mkdir -p data/mariadb data/wordpress
+	mkdir -p data/mariadb data/wordpress data/redis
 
 
 rm_directories:
-	rm -rf data/mariadb data/wordpress
+	rm -rf data/mariadb data/wordpress data/redis

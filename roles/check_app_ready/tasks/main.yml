@@ -1,0 +1,12 @@
+---
+
+# Wait for the application to be ready
+- name: Wait for the application to be ready
+  uri:
+    url: https://charles-mariot.fr
+    return_content: yes
+  register: uri_result
+  until: uri_result.status == 200
+  retries: 10
+  delay: 10
+  ignore_errors: true

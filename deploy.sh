@@ -26,7 +26,8 @@ ENV_FILE="Inception/.env"
 
 # WORDPRESS
 SITE_TITLE=Blog
-SITE_URL=charles-mariot.fr
+SITE_URL=https://charles-mariot.fr
+URL=charles-mariot.fr
 
 # MARIADB
 MYSQL_DB_HOST=mariadb:3306
@@ -89,6 +90,7 @@ create_env_file()
     echo "# WORDPRESS" > $ENV_FILE
     echo "SITE_TITLE=$SITE_TITLE" >> $ENV_FILE
     echo "SITE_URL=$SITE_URL" >> $ENV_FILE
+    echo "URL=$URL" >> $ENV_FILE
 
     echo >> $ENV_FILE
 
@@ -149,32 +151,15 @@ open_website()
     # If it does, we open the website in the default browser
     # If the website is not up yet, we wait 10 seconds and we try again
 
-    echo
-    echo -e "${BLUE} The application is starting.${RC}"
-    echo -e "When the website is up, it will open in the default browser."
-    echo -e "Please wait ..."
-    echo
-
-    sleep 10
-
     # For loop with 10 iterations (10 * 10 seconds = 100 seconds)
     for i in {1..10}
     do
-        echo -e "Checking if the website is up ..."
-        STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://$SITE_URL)
+        STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" $SITE_URL)
         if [ $STATUS_CODE -eq 200 ];
         then
-            echo
-            echo -e "The website is up."
-            echo -e "Opening the website in the default browser ..."
-            open https://$SITE_URL
+            open $SITE_URL
             break
         else
-            echo
-            echo -e "The website is not up yet."
-            echo -e "Waiting 10 seconds ..."
-            sleep 10
-
             # If the website is not up after 100 seconds, we exit the loop
             if [ $i -eq 10 ];
             then
@@ -185,8 +170,8 @@ open_website()
                 exit 1
             fi
         fi
-    done
 
+    done
 
 }
 

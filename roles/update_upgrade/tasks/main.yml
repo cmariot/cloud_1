@@ -1,0 +1,29 @@
+---
+
+# Update the system
+- name: Update apt
+  apt:
+    update_cache: yes
+  changed_when: false
+
+# Upgrade the system
+- name: Upgrade apt
+  apt:
+    upgrade: full
+
+# Get the list of packages
+- name: Apt list
+  shell: apt list
+  register: apt_list
+  changed_when: false
+
+# Install packages if they are not already installed
+- name: Install packages
+  apt:
+    name: "{{ item }}"
+    state: latest
+  when: item not in apt_list.stdout
+  loop:
+    - docker
+    - docker-compose
+

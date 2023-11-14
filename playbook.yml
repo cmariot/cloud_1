@@ -1,49 +1,10 @@
 ---
-- name: Update system
+- name: Deploy Docker App
   hosts: charles-mariot.fr
   become: true
-
-  tasks:
-
-    - name: Update apt
-      apt:
-        update_cache: yes
-
-    - name: Upgrade apt
-      apt:
-        upgrade: yes
-
-    - name: Install Docker
-      apt:
-        name: docker
-        state: present
-
-
-- name: Deploy Docker Compose Application
-  hosts: charles-mariot.fr
-
-  tasks:
-
-    - name: Copy Inception directory
-      copy:
-        src: ./Inception
-        dest: /home/ubuntu/
-
-    - name: Create volume directory
-      file:
-        path: "{{ item }}"
-        state: directory
-        force: yes
-      loop:
-        - /home/ubuntu/Inception/data/mariadb
-        - /home/ubuntu/Inception/data/wordpress
-
-    - name: Stop Docker Compose
-      command: docker compose stop
-      args:
-        chdir: /home/ubuntu/Inception/
-
-    - name: Start Docker Compose
-      command: docker compose up -d
-      args:
-        chdir: /home/ubuntu/Inception/
+  roles:
+    - update_upgrade
+    - ssl_certificate
+    - deploy_docker_app
+    - start_docker_app
+    - check_app_ready

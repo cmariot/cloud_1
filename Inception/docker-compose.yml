@@ -26,6 +26,10 @@ services:
     volumes:
       - wordpress_volume:/var/www/html:rw
     env_file: .env
+    # environment:
+    #   WORDPRESS_CONFIG_EXTRA: |
+    #       /* Nginx Cache */
+    #       define( 'RT_WP_NGINX_HELPER_CACHE_PATH', '/var/run/nginx-cache' );"
     depends_on:
       - mariadb
     networks:
@@ -46,9 +50,13 @@ services:
     depends_on:
       - wordpress
     networks:
-      - docker_network
+      docker_network:
+        aliases:
+          - ${URL}
     restart: always
 
+
+  # PhpMyAdmin container
   phpmyadmin:
     container_name: phpmyadmin
     image: phpmyadmin/phpmyadmin
@@ -56,17 +64,33 @@ services:
       - mariadb
     environment:
       PMA_HOST: mariadb
+      PMA_PORT: 3306
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
-      PMA_ABSOLUTE_URI: "https://${SITE_URL}/phpmyadmin"
+      PMA_ABSOLUTE_URI: ${SITE_URL}/phpmyadmin
+    volumes:
+      - nginx_certs:/cert:ro
     networks:
       - docker_network
     restart: always
+
+
+  redis:
+    container_name: redis
+    image: redis:7.2
+    restart: always
+    volumes:
+      - redis_data:/data
+    networks:
+      - docker_network
+    expose:
+      - '6379'
 
 
 
 networks:
   docker_network:
     driver: bridge
+
 
 
 volumes:
@@ -101,4 +125,12 @@ volumes:
     driver_opts:
       type: none
       device: /home/ubuntu/Inception/requirements/nginx
+      o: bind
+
+  # Redis
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/ubuntu/Inception/data/redis
       o: bind

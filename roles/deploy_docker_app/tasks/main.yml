@@ -1,0 +1,22 @@
+---
+
+# Copy the Docker Compose file to the remote
+- name: Copy Inception directory
+  copy:
+    src: ./Inception
+    dest: /home/ubuntu/
+    owner: ubuntu
+    group: ubuntu
+  register: copy_result
+
+# Create the volume directories if they don't exist
+- name: Create Inception volume directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    force: yes
+  loop:
+    - /home/ubuntu/Inception/data/mariadb
+    - /home/ubuntu/Inception/data/wordpress
+    - /home/ubuntu/Inception/data/redis
+  register: volume_result

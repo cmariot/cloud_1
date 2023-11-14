@@ -37,6 +37,17 @@ config_wordpress()
 
 	sed -i "62i define('FS_METHOD', 'direct');" wp-config.php
 
+    # // adjust Redis host and port if necessary
+    sed -i "63i define('WP_REDIS_HOST', '${WP_REDIS_HOST}');" wp-config.php
+    sed -i "64i define('WP_REDIS_PORT', '${WP_REDIS_PORT}');" wp-config.php
+
+    # // change the prefix and database for each site to avoid cache data collisions
+    sed -i "65i define('WP_REDIS_PREFIX', 'blog_');" wp-config.php
+    sed -i "66i define('WP_REDIS_DATABASE', 0);" wp-config.php
+
+    # // reasonable connection and read+write timeouts
+    sed -i "67i define( 'WP_REDIS_TIMEOUT', 1 );" wp-config.php
+    sed -i "68i define( 'WP_REDIS_READ_TIMEOUT', 1 );" wp-config.php
 }
 
 
@@ -63,6 +74,32 @@ install_wordpress()
 }
 
 
+install_redis_extensions()
+{
+    # Install Redis extensions
+    wp plugin install redis-cache --activate
+    wp plugin install wp-super-cache --activate
+
+    # Enable Redis
+    wp redis enable
+}
+
+
+clean_wordpress()
+{
+    echo "WordPress cleaning"
+    cd /var/www/html
+
+    # Remove default unused files
+    rm ./readme.html
+    rm ./license.txt
+    rm ./wp-config-sample.php
+
+    # Remove wp-cli
+    rm -f /usr/local/bin/wp
+}
+
+
 main()
 {
 	if [ -f "$WORDPRESS_CONFIG_FILE" ];
@@ -74,13 +111,13 @@ main()
 		download_wordpress
 		config_wordpress
 		install_wordpress
+        install_redis_extensions
 		wp cron event run --due-now
         chown -R www-data:www-data /var/www/html
 		echo "The WordPress installation is completed."
-        rm -f /usr/local/bin/wp
 	fi
 }
 
 
 main
-exec php-fpm8 -F
+exec php-fpm81 -F
