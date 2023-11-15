@@ -16,6 +16,7 @@
 
 # This script is used to deploy the Inception project
 
+
 # Colors
 BLUE='\033[0;34m'
 RED='\033[0;31m'
@@ -39,7 +40,6 @@ WP_REDIS_HOST=redis
 WP_REDIS_PORT=6379
 
 
-# Functions
 
 header()
 {
@@ -114,6 +114,7 @@ create_env_file()
     echo -e "${BLUE}The .env file has been created.${RC}"
     echo
     echo
+
 }
 
 
@@ -138,7 +139,7 @@ deploy_with_ansible()
 {
 
     echo -e "${BLUE}Deploying the project with Ansible ...${RC}"
-    ansible-playbook -i inventory.conf playbook.yml
+    ansible-playbook -i ./ansible/inventory.conf ./ansible/playbook.yml
     echo
 
 }
@@ -170,10 +171,10 @@ open_website()
                 exit 1
             fi
         fi
-
     done
 
 }
+
 
 main()
 {
@@ -184,5 +185,6 @@ main()
     open_website
 
 }
+
 
 main
