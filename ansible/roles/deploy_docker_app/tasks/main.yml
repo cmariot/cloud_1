@@ -1,5 +1,11 @@
 ---
 
+#################################################
+#                                               #
+#   Deploy the Inception project on the VPS     #
+#                                               #
+#################################################
+
 # Copy the Docker Compose file to the remote
 - name: Copy Inception directory
   copy:

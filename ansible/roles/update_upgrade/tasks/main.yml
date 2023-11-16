@@ -1,5 +1,11 @@
 ---
 
+#################################################
+#                                               #
+#     Update / Upgrade / Install packages       #
+#                                               #
+#################################################
+
 # Update the system
 - name: Update apt
   apt:
@@ -26,4 +32,3 @@
   loop:
     - docker
     - docker-compose
-

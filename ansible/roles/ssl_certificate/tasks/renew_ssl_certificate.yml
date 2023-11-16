@@ -1,0 +1,84 @@
+---
+
+#################################################
+#                                               #
+#          Renew the SSL certificate            #
+#                                               #
+#################################################
+
+# Get information about the Inception Docker Compose app on the remote
+# Inception also use the port 80, so we need to stop it if it is running
+# and we need to renew the SSL certificate
+- name: Stat of the Inception Docker Compose app on the remote
+  stat:
+    path: /home/ubuntu/Inception/docker-compose.yml
+  register: inception
+
+# Stop the Inception Docker Compose app if it is running and we need to
+# renew the SSL certificate
+- name: Stop Inception if needed
+  command: "docker-compose down"
+  args:
+    chdir: /home/ubuntu/Inception
+  ignore_errors: true
+  when: inception.stat.exists == true
+
+# Get information about the certbot app on the remote
+- name: Check if Certbot Docker Compose app is running
+  command: "docker compose ps -q"
+  args:
+    chdir: /home/ubuntu/LetsEncrypt
+  register: certbot
+  ignore_errors: true
+  changed_when: false
+
+# Launch the Certbot Docker Compose app to get the SSL certificate
+- name: Launch the Certbot Docker Compose app if needed
+  command: "docker-compose up -d"
+  args:
+    chdir: /home/ubuntu/LetsEncrypt
+  when: certbot.stdout == ""
+
+# Wait for the application to be ready with docker-compose ps
+- name: Wait for the application to be ready
+  command: "docker-compose ps -a"
+  args:
+    chdir: /home/ubuntu/LetsEncrypt
+  register: docker_compose_ps_result
+  until: docker_compose_ps_result.stdout.find("certbot") != -1
+  retries: 10
+  delay: 5
+  ignore_errors: true
+
+# Renew the SSL certificate
+- name: Renew the SSL certificate for charles-mariot.fr
+  command: "docker compose run --rm  certbot certonly --webroot
+            --webroot-path /var/www/certbot/ -d charles-mariot.fr
+            -m contact@charles-mariot.fr --agree-tos --force-renewal --dry-run"
+  args:
+    chdir: /home/ubuntu/LetsEncrypt
+
+# Stop the Docker Compose app
+- name: Stop certbot Docker
+  command: "docker-compose down"
+  args:
+    chdir: /home/ubuntu/LetsEncrypt
+  ignore_errors: true
+
+# Copy the SSL certificate / privkey to the ~/.ssl directory and change the owner / group / mode
+- name: Copy the SSL certificate in ~/.ssl/
+  command: "cp {{ item }}"
+  loop:
+    - /home/ubuntu/LetsEncrypt/certbot/conf/archive/charles-mariot.fr/fullchain1.pem /home/ubuntu/.ssl/fullchain.pem
+    - /home/ubuntu/LetsEncrypt/certbot/conf/archive/charles-mariot.fr/privkey1.pem /home/ubuntu/.ssl/privkey.pem
+
+# Change the owner / group / mode of the SSL certificate
+- name: Change the owner / group / mode of the SSL certificate
+  file:
+    path: "{{ item }}"
+    owner: root
+    group: root
+    mode: "0600"
+  loop:
+    - /home/ubuntu/.ssl/fullchain.pem
+    - /home/ubuntu/.ssl/privkey.pem

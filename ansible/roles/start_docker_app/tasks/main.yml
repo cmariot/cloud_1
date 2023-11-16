@@ -1,5 +1,11 @@
 ---
 
+#################################################
+#                                               #
+#           Start the compose app               #
+#                                               #
+#################################################
+
 # Indempotently start the application
 # - If the application is not running, start it
 # - If the application is running and something has changed, restart it

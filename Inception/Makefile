@@ -6,24 +6,30 @@
 #    By: cmariot <cmariot@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/31 16:08:49 by cmariot           #+#    #+#              #
-#    Updated: 2023/11/14 22:54:42 by cmariot          ###   ########.fr        #
+#    Updated: 2023/11/15 01:42:47 by cmariot          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 
-PROJECT_NAME 				= wordpress
-DOCKER_COMPOSE_COMMAND		= docker compose
-HOME_PATH					= .
+PROJECT_NAME 				= inception
+DC							= docker compose
+VOLUMES_DIR					= data/mariadb data/wordpress data/redis
 
 
+# Docker compose up : build and start containers
 up: create_directories
-	${DOCKER_COMPOSE_COMMAND} up --build
+	${DC} up --build
 
 
+# Clean : stop and remove unused containers, volumes and images, networks
+# The volumes and the data are kept
 clean: stop
 	docker system prune -a --force
 
 
+# Fclean : stop and remove all containers, volumes and images, networks,
+# the volumes and the data
+# Use this command to reset the project
 fclean: stop rm_directories
 	docker system prune -a --force --volumes
 	docker volume rm -f inception_wordpress_volume\
@@ -33,23 +39,27 @@ fclean: stop rm_directories
 						inception_redis_data
 
 
+# Re : fclean and up
 re: fclean up
 
 
+# Execute a shell in a container
 sh_nginx:
-	${DOCKER_COMPOSE_COMMAND} exec nginx sh
+	${DC} exec nginx sh
 
 sh_mariadb:
-	${DOCKER_COMPOSE_COMMAND} exec mariadb sh
+	${DC} exec mariadb sh
 
 sh_wordpress:
-	${DOCKER_COMPOSE_COMMAND} exec wordpress sh
+	${DC} exec wordpress sh
 
 
+# List containers
 ps:
-	${DOCKER_COMPOSE_COMMAND} ps
+	${DC} ps
 
 
+# A better list of containers
 list:
 	@printf "CONTAINERS LIST :\n"
 	@docker container ls
@@ -62,32 +72,34 @@ list:
 
 
 image:
-	${DOCKER_COMPOSE_COMMAND} images
+	${DC} images
 
 
 pause:
-	${DOCKER_COMPOSE_COMMAND} pause
+	${DC} pause
 
 
 unpause:
-	${DOCKER_COMPOSE_COMMAND} unpause
+	${DC} unpause
 
 
 start:
-	${DOCKER_COMPOSE_COMMAND} start
+	${DC} start
 
 
 stop:
-	${DOCKER_COMPOSE_COMMAND} stop
+	${DC} stop
 
 
 restart:
-	${DOCKER_COMPOSE_COMMAND} restart
+	${DC} restart
 
 
+# Create the directories for the volumes, called by the rule up
 create_directories:
-	mkdir -p data/mariadb data/wordpress data/redis
+	mkdir -p ${VOLUMES_DIR}
 
 
+# Remove the directories for the volumes, called by the rule fclean
 rm_directories:
-	rm -rf data/mariadb data/wordpress data/redis
+	rm -rf ${VOLUMES_DIR}

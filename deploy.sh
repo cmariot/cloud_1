@@ -53,14 +53,35 @@ header()
     \____|_____\___/ \___/|____/___|_|
     ${RC}
 
-  Deploying WordPress on a cloud platform.
+  Deploying Inception on a cloud platform.
     "
+
+}
+
+
+check_env_file()
+{
+
+    # If the .env file doesn't exist, we need to create it
+
+    if [ ! -f $ENV_FILE ];
+    then
+        echo
+        echo
+        echo -e "☁️ ${BLUE}Let's add some variables to the .env file ! ${RC}"
+        echo
+        read_input
+        create_env_file
+    fi
+    echo
 
 }
 
 
 read_input()
 {
+
+    # We ask the user to enter the variables
 
     echo -e "${BLUE}Enter the WordPress admin user: ${RC}"
     read WP_ADMIN_USER
@@ -85,7 +106,7 @@ read_input()
 create_env_file()
 {
 
-    read_input
+    # Write the variables in the .env file
 
     echo "# WORDPRESS" > $ENV_FILE
     echo "SITE_TITLE=$SITE_TITLE" >> $ENV_FILE
@@ -112,25 +133,7 @@ create_env_file()
 
     echo
     echo -e "${BLUE}The .env file has been created.${RC}"
-    echo
-    echo
-
-}
-
-
-check_env_file()
-{
-
-    # If the .env file doesn't exist, we create it
-    if [ ! -f $ENV_FILE ];
-    then
-        echo
-        echo
-        echo -e "☁️ ${BLUE}Let's add some variables to the .env file ! ${RC}"
-        echo
-        create_env_file
-    fi
-    echo
+    echo "\n"
 
 }
 
@@ -139,7 +142,13 @@ deploy_with_ansible()
 {
 
     echo -e "${BLUE}Deploying the project with Ansible ...${RC}"
-    ansible-playbook -i ./ansible/inventory.conf ./ansible/playbook.yml
+
+    # We run the playbook.yml file with the inventory.conf file
+    # The playbook.yml file contains the tasks to deploy the project
+    # The inventory.conf file contains the host, the user and the ssh key
+
+    ansible-playbook ./ansible/playbook.yml -i ./ansible/inventory.conf
+
     echo
 
 }
@@ -153,6 +162,9 @@ open_website()
     # If the website is not up yet, we wait 10 seconds and we try again
 
     # For loop with 10 iterations (10 * 10 seconds = 100 seconds)
+
+    echo -e "Trying to open $URL in the browser.\n"
+
     for i in {1..10}
     do
         STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" $SITE_URL)
@@ -169,6 +181,8 @@ open_website()
                 echo -e "${RED}Please check the logs.${RC}"
                 echo
                 exit 1
+            else
+                echo -e "Connexion failed, retrying in 10 seconds."
             fi
         fi
     done

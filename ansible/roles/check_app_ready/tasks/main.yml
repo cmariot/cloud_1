@@ -1,5 +1,11 @@
 ---
 
+#################################################
+#                                               #
+#            Wait for a response                #
+#                                               #
+#################################################
+
 # Wait for the application to be ready
 - name: Wait for the application to be ready
   uri:

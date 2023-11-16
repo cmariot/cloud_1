@@ -44,7 +44,6 @@ main()
 		rc-service mariadb start
 		secure_database
 		create_database
-		rc-service mariadb restart
 		rc-service mariadb stop
 		echo "The database installation is completed."
 	fi

@@ -1,4 +1,5 @@
 ---
+
 - name: Deploy Docker App
   hosts: charles-mariot.fr
   become: true
