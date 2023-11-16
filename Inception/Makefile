@@ -36,7 +36,8 @@ fclean: stop rm_directories
 						inception_mariadb_volume\
 						inception_nginx_config\
 						inception_nginx_certs\
-						inception_redis_data
+						inception_redis_data \
+						inception_aftc_volume
 
 
 # Re : fclean and up

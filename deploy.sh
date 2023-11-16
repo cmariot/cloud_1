@@ -172,7 +172,7 @@ open_website()
         STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" $SITE_URL)
         if [ $STATUS_CODE -eq 200 ];
         then
-            open $SITE_URL
+		firefox $SITE_URL
             break
         else
             # If the website is not up after 100 seconds, we exit the loop
