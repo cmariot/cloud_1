@@ -44,6 +44,8 @@ WP_REDIS_PORT=6379
 header()
 {
 
+    clear
+
     echo -e "
     ${BLUE}
      ____ _     ___  _   _ ____     _
