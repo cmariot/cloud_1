@@ -6,7 +6,7 @@
 #    By: cmariot <cmariot@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/08/31 16:08:49 by cmariot           #+#    #+#              #
-#    Updated: 2023/11/15 01:42:47 by cmariot          ###   ########.fr        #
+#    Updated: 2023/11/27 11:07:35 by cmariot          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -36,8 +36,7 @@ fclean: stop rm_directories
 						inception_mariadb_volume\
 						inception_nginx_config\
 						inception_nginx_certs\
-						inception_redis_data \
-						inception_aftc_volume
+						inception_redis_data
 
 
 # Re : fclean and up

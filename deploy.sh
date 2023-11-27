@@ -135,7 +135,7 @@ create_env_file()
 
     echo
     echo -e "${BLUE}The .env file has been created.${RC}"
-    echo "\n"
+    echo
 
 }
 

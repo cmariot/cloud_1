@@ -32,7 +32,6 @@ services:
       - nginx_config:/etc/nginx/conf.d:ro
       - nginx_certs:/etc/nginx/certs:ro
       - wordpress_volume:/var/www/html/:ro
-      - aftc_volume:/var/www/aftc:ro
     networks:
       docker_network:
         aliases:
@@ -147,14 +146,6 @@ volumes:
     driver_opts:
       type: none
       device: /home/ubuntu/Inception/data/redis
-      o: bind
-
-  # Aftc
-  aftc_volume:
-    driver: local
-    driver_opts:
-      type: none
-      device: /home/ubuntu/Inception/requirements/aftc
       o: bind
 
 
